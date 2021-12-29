@@ -1,0 +1,79 @@
+
+
+
+/packt$ npm install web3
+# make sure that you cd to the 'contracts' directory....
+
+> Web3 = require("web3")
+> web3 = new Web3( new Web3.providers.HttpProvider("http://ec2-54-184-225-206.us-west-2.compute.amazonaws.com:8545"));
+>code = fs.readFileSync('Voting.sol').toString()
+var solc = require('solc');
+var CONTRACT_FILE = 'Voting.sol'
+var content =fs.readFileSync(CONTRACT_FILE).toString()
+var input = {
+  language: 'Solidity',
+  sources: {
+    [CONTRACT_FILE]: {
+      content: content
+    }
+  },
+  settings: {
+    outputSelection: {
+      '*': {
+        '*': ['*']
+      }
+    }
+  }
+}
+
+
+
+
+var compiled = solc.compile(JSON.stringify(input))
+var output = JSON.parse(compiled)
+//  not this but this !!!!!  (below)   var abi = output.contracts[CONTRACT_FILE]['Voting'].abi
+to fix i redeployed the contract from my web app (DAPP)
+ abi = JSON.parse('[{"constant":true,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"totalVotesFor","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"validCandidate","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"votesReceived","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"candidateList","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"candidate","type":"bytes32"}],"name":"voteForCandidate","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"candidateNames","type":"bytes32[]"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]')
+
+
+
+
+
+
+var bytecode = output.contracts[CONTRACT_FILE]['Voting'].evm.bytecode.object
+var HelloWorld = new web3.eth.Contract(abi);
+
+
+deployedContract = new web3.eth.Contract(abi)
+listOfCandidates = ['Rama', 'Nick', 'Jose']
+
+
+
+
+
+ubuntu@ip-172-31-22-13:~/packt/contracts$ npm install solc
+
+
+deployedContract.deploy({
+  data: bytecode,
+  arguments: [listOfCandidates.map(name => web3.utils.asciiToHex(name))]
+}).send({
+  from: '0xAB4E7550C568E6B10d88F7FBD182048791773652',
+  gas: 1500000,
+  gasPrice: web3.utils.toWei('0.00003', 'ether')
+}).then((newContractInstance) => {
+  deployedContract.options.address = newContractInstance.options.address
+  console.log(newContractInstance.options.address)
+});
+
+
+
+
+deployedContract.methods.totalVotesFor(web3.utils.asciiToHex('Rama')).call(console.log)
+
+deployedContract.methods.voteForCandidate(web3.utils.asciiToHex('Rama')).send({from: '0xAB4E7550C568E6B10d88F7FBD182048791773652'}).then((f) => console.log(f))
+
+deployedContract.methods.totalVotesFor(web3.utils.asciiToHex('Rama')).call(console.log)
+
+
+
